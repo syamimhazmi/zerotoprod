@@ -3,4 +3,16 @@ name = "zerotoprod"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/main.rs"
+name = "zerotoprod"
+
 [dependencies]
+axum = "0.8.4"
+axum-test = { version = "17.3.0", features = ["pretty-assertions", "reqwest"] }
+reqwest = "0.12.20"
+tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
+tower = { version = "0.5.1", features = ["full"] }
