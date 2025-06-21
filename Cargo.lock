@@ -1633,6 +1633,7 @@ dependencies = [
  "tower",
  "tower-layer",
  "tower-service",
+ "tracing",
 ]
 
 [[package]]
@@ -2075,6 +2076,7 @@ dependencies = [
  "reqwest",
  "tokio",
  "tower",
+ "tower-http",
 ]
 
 [[package]]

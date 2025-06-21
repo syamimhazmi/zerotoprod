@@ -12,7 +12,7 @@ async fn test_health_check_succeed() {
     let mut app = spawn_app();
 
     let request = Request::builder()
-        .uri("/health-check")
+        .uri("/api/v1/health-check")
         .body(Body::empty())
         .unwrap();
 
