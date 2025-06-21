@@ -1,4 +1,10 @@
-use axum::{Router, extract::Path, http::StatusCode, response::IntoResponse, routing::get};
+use axum::{
+    Router,
+    extract::Path,
+    http::{StatusCode, Uri},
+    response::IntoResponse,
+    routing::get,
+};
 use tokio::net::TcpListener;
 
 async fn greet(Path(name): Path<String>) -> impl IntoResponse {
@@ -9,14 +15,16 @@ async fn health_check() -> impl IntoResponse {
     StatusCode::OK
 }
 
-async fn not_found() -> impl IntoResponse {
-    (StatusCode::NOT_FOUND, "Not found")
+async fn not_found(uri: Uri) -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, format!("Not found for {uri}"))
 }
 
 pub async fn run() {
     let listener = TcpListener::bind("0.0.0.0:42069").await.unwrap();
 
-    axum::serve(listener, app()).await.unwrap();
+    axum::serve(listener, app().into_make_service())
+        .await
+        .unwrap();
 }
 
 pub fn app() -> Router {
