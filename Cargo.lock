@@ -2074,6 +2074,7 @@ dependencies = [
  "axum",
  "axum-test",
  "reqwest",
+ "serde",
  "tokio",
  "tower",
  "tower-http",

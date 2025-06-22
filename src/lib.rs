@@ -1,21 +1,27 @@
 use axum::{
-    Router,
-    extract::Path,
+    Form, Router,
     http::{StatusCode, Uri},
-    response::IntoResponse,
-    routing::get,
+    routing::{get, post},
 };
 use tokio::net::TcpListener;
 
-async fn greet(Path(name): Path<String>) -> impl IntoResponse {
-    format!("Hello, {}", name)
-}
-
-async fn health_check() -> impl IntoResponse {
+async fn health_check() -> StatusCode {
     StatusCode::OK
 }
 
-async fn not_found(uri: Uri) -> impl IntoResponse {
+#[allow(dead_code)]
+#[derive(serde::Deserialize, Debug)]
+struct SubscribeForm {
+    email: String,
+    name: String,
+}
+
+async fn subscribes(Form(subscriber): Form<SubscribeForm>) -> StatusCode {
+    dbg!(&subscriber);
+    StatusCode::OK
+}
+
+async fn not_found(uri: Uri) -> (StatusCode, String) {
     (StatusCode::NOT_FOUND, format!("Not found for {uri}"))
 }
 
@@ -29,8 +35,8 @@ pub async fn run() {
 
 pub fn app() -> Router {
     let router = Router::new()
-        .route("/{name}", get(greet))
         .route("/health-check", get(health_check))
+        .route("/subscribes", post(subscribes))
         .fallback(not_found);
 
     Router::new()

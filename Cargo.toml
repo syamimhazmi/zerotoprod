@@ -14,6 +14,7 @@ name = "zerotoprod"
 axum = "0.8.4"
 axum-test = { version = "17.3.0", features = ["pretty-assertions", "reqwest"] }
 reqwest = "0.12.20"
+serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
 tower = { version = "0.5.1", features = ["full"] }
 tower-http = { version = "0.6.6", features = ["trace"] }
