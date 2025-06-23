@@ -1,25 +1,12 @@
 use axum::{
-    Form, Router,
+    Router,
     http::{StatusCode, Uri},
     routing::{get, post},
 };
+use routes::{health_check::health_check, subscriptions::subscribes};
 use tokio::net::TcpListener;
 
-async fn health_check() -> StatusCode {
-    StatusCode::OK
-}
-
-#[allow(dead_code)]
-#[derive(serde::Deserialize, Debug)]
-struct SubscribeForm {
-    email: String,
-    name: String,
-}
-
-async fn subscribes(Form(subscriber): Form<SubscribeForm>) -> StatusCode {
-    dbg!(&subscriber);
-    StatusCode::OK
-}
+pub mod routes;
 
 async fn not_found(uri: Uri) -> (StatusCode, String) {
     (StatusCode::NOT_FOUND, format!("Not found for {uri}"))
