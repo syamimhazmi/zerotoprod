@@ -52,7 +52,7 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
 
         assert_eq!(
             response.status(),
-            StatusCode::NOT_FOUND,
+            StatusCode::UNPROCESSABLE_ENTITY,
             "The API did not fail with 400 bad request when payload was {}",
             error_message
         );
