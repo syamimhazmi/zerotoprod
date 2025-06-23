@@ -10,7 +10,7 @@ async fn subscribe_returns_200_for_valid_form_data() {
     let mut app = spawn_app();
 
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
-    let request = Request::post("/api/v1/subscribes")
+    let request = Request::post("/api/v1/subscriptions")
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(Body::from(body))
         .unwrap();
@@ -37,7 +37,7 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
     ];
 
     for (invalid_body, error_message) in test_cases {
-        let request = Request::post("/api/v1/subscribes")
+        let request = Request::post("/api/v1/subscriptions")
             .header("Content-Type", "application/x-www-form-urlencoded")
             .body(Body::from(invalid_body))
             .unwrap();

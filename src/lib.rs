@@ -1,16 +1,11 @@
-use axum::{
-    Router,
-    http::{StatusCode, Uri},
-    routing::{get, post},
-};
-use routes::{health_check::health_check, subscriptions::subscribes};
-use tokio::net::TcpListener;
-
 pub mod routes;
 
-async fn not_found(uri: Uri) -> (StatusCode, String) {
-    (StatusCode::NOT_FOUND, format!("Not found for {uri}"))
-}
+use axum::{
+    Router,
+    routing::{get, post},
+};
+use routes::{health_check::health_check, not_found, subscriptions::subscribes};
+use tokio::net::TcpListener;
 
 pub async fn run() {
     let listener = TcpListener::bind("0.0.0.0:42069").await.unwrap();
@@ -23,7 +18,7 @@ pub async fn run() {
 pub fn app() -> Router {
     let router = Router::new()
         .route("/health-check", get(health_check))
-        .route("/subscribes", post(subscribes))
+        .route("/subscriptions", post(subscribes))
         .fallback(not_found);
 
     Router::new()
