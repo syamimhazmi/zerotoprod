@@ -1,13 +1,16 @@
 use axum::{body::Body, http::Request};
 use common::spawn_app;
 use reqwest::StatusCode;
+use sqlx::{Connection, PgConnection};
 use tower::{Service, ServiceExt};
+use zerotoprod::configuration::get_configurations;
 
 mod common;
 
 #[tokio::test]
 async fn subscribe_returns_200_for_valid_form_data() {
     let mut app = spawn_app();
+    let config = get_configurations().expect("failed to read configuration");
 
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
     let request = Request::post("/api/v1/subscriptions")
@@ -23,7 +26,19 @@ async fn subscribe_returns_200_for_valid_form_data() {
         .await
         .expect("failed to subscribe");
 
+    let mut connection = PgConnection::connect(&config.database.connection_string())
+        .await
+        .expect("failed to connect to Postgres");
+
     assert_eq!(response.status(), StatusCode::OK);
+
+    let saved = sqlx::query!("select email, name from subscriptions",)
+        .fetch_one(&mut connection)
+        .await
+        .expect("failed to fetch saved subscription");
+
+    assert_eq!(saved.email, "ursula_le_guin@gmail.com");
+    assert_eq!(saved.name, "le guin");
 }
 
 #[tokio::test]

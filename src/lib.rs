@@ -1,14 +1,23 @@
+pub mod configuration;
 pub mod routes;
+pub mod startup;
 
 use axum::{
     Router,
     routing::{get, post},
 };
+use configuration::get_configurations;
 use routes::{health_check::health_check, not_found, subscriptions::subscribes};
 use tokio::net::TcpListener;
 
 pub async fn run() {
-    let listener = TcpListener::bind("0.0.0.0:42069").await.unwrap();
+    let config = get_configurations().expect("failed to read configuration");
+
+    println!("port: {:?}", &config.application_port);
+
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", config.application_port))
+        .await
+        .unwrap();
 
     axum::serve(listener, app().into_make_service())
         .await
