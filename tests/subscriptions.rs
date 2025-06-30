@@ -1,16 +1,15 @@
 use axum::{body::Body, http::Request};
-use common::spawn_app;
+use common::{spawn_app, tear_down_test_db};
 use reqwest::StatusCode;
 use sqlx::{Connection, PgConnection};
 use tower::{Service, ServiceExt};
-use zerotoprod::configuration::get_configurations;
 
 mod common;
 
 #[tokio::test]
 async fn subscribe_returns_200_for_valid_form_data() {
-    let mut app = spawn_app();
-    let config = get_configurations().expect("failed to read configuration");
+    let test_app = spawn_app().await;
+    let mut app = test_app.service;
 
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
     let request = Request::post("/api/v1/subscriptions")
@@ -26,7 +25,7 @@ async fn subscribe_returns_200_for_valid_form_data() {
         .await
         .expect("failed to subscribe");
 
-    let mut connection = PgConnection::connect(&config.database.connection_string())
+    let mut connection = PgConnection::connect(&test_app.config.database.connection_string())
         .await
         .expect("failed to connect to Postgres");
 
@@ -39,11 +38,14 @@ async fn subscribe_returns_200_for_valid_form_data() {
 
     assert_eq!(saved.email, "ursula_le_guin@gmail.com");
     assert_eq!(saved.name, "le guin");
+
+    tear_down_test_db(&test_app.db_pool, "subscriptions".into()).await;
 }
 
 #[tokio::test]
 async fn subscribe_returns_a_400_when_data_is_missing() {
-    let mut app = spawn_app();
+    let test_app = spawn_app().await;
+    let mut app = test_app.service;
 
     let test_cases = vec![
         ("name=le%20guin", "missing the email"),
@@ -72,4 +74,6 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
             error_message
         );
     }
+
+    tear_down_test_db(&test_app.db_pool, "subscriptions".into()).await;
 }
