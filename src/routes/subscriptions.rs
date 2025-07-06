@@ -1,4 +1,6 @@
-use axum::{Form, extract::State, http::StatusCode};
+use axum::{Form, debug_handler, extract::State, http::StatusCode};
+use sqlx::types::chrono::Utc;
+use uuid::Uuid;
 
 use crate::AppState;
 
@@ -9,10 +11,36 @@ pub struct SubscribeForm {
     name: String,
 }
 
+#[debug_handler]
 pub async fn subscribes(
     State(state): State<AppState>,
     Form(subscriber): Form<SubscribeForm>,
 ) -> StatusCode {
-    dbg!(&state, &subscriber);
-    StatusCode::OK
+    let mut tx = match state.db_pool.begin().await {
+        Ok(tx) => tx,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR,
+    };
+
+    let result = sqlx::query!(
+        r#"
+        insert into subscriptions (uuid, email, name, subscribed_at)
+        values($1, $2, $3, $4)
+        "#,
+        Uuid::new_v4(),
+        subscriber.email,
+        subscriber.name,
+        Utc::now(),
+    )
+    .execute(&mut *tx)
+    .await;
+
+    println!("is error: {:?}", &result.is_err());
+    if result.is_err() {
+        return StatusCode::INTERNAL_SERVER_ERROR;
+    }
+
+    match tx.commit().await {
+        Ok(_) => StatusCode::OK,
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    }
 }

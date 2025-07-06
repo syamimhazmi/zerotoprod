@@ -11,6 +11,10 @@ async fn subscribe_returns_200_for_valid_form_data() {
     let test_app = spawn_app().await;
     let mut app = test_app.service;
 
+    let mut connection = PgConnection::connect(&test_app.config.database.connection_string())
+        .await
+        .expect("failed to connect to Postgres");
+
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
     let request = Request::post("/api/v1/subscriptions")
         .header("Content-Type", "application/x-www-form-urlencoded")
@@ -25,13 +29,9 @@ async fn subscribe_returns_200_for_valid_form_data() {
         .await
         .expect("failed to subscribe");
 
-    let mut connection = PgConnection::connect(&test_app.config.database.connection_string())
-        .await
-        .expect("failed to connect to Postgres");
-
     assert_eq!(response.status(), StatusCode::OK);
 
-    let saved = sqlx::query!("select email, name from subscriptions",)
+    let saved = sqlx::query!("select email, name from subscriptions")
         .fetch_one(&mut connection)
         .await
         .expect("failed to fetch saved subscription");

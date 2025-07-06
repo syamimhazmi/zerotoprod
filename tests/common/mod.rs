@@ -7,6 +7,8 @@ use zerotoprod::{
     configuration::{Settings, get_configurations},
 };
 
+#[allow(dead_code)]
+#[derive(Debug)]
 pub struct TestApp {
     pub service: axum::routing::RouterIntoService<axum::body::Body>,
     pub db_pool: PgPool,
