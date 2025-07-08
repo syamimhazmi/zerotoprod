@@ -1,3 +1,7 @@
+# About
+
+Zerotoprod project by LukeMathWalker. But using axum instead of actix-web
+
 # Setup
 
 ## Faster linker
