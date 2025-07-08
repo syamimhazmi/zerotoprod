@@ -18,21 +18,23 @@ pub async fn subscribes(
 ) -> StatusCode {
     let request_id = Uuid::new_v4();
 
-    log::info!(
-        "request id: '{}' - adding '{}' '{}' as a new subscriber",
-        request_id,
-        subscriber.name,
-        subscriber.email
+    let request_span = tracing::info_span!(
+        "adding as a new subscriber",
+        %request_id,
+        subscriber_name = %subscriber.name,
+        subscriber_email = %subscriber.email
     );
 
-    log::info!(
+    let _request_span_guard = request_span.enter();
+
+    tracing::info!(
         "request id: '{}' - saving subscriber info into database",
         request_id
     );
 
     let mut tx = match state.db_pool.begin().await {
         Ok(tx) => {
-            log::info!(
+            tracing::info!(
                 "request id: '{}' - successfully starting db transaction",
                 request_id
             );
@@ -40,7 +42,7 @@ pub async fn subscribes(
             tx
         }
         Err(err) => {
-            log::error!(
+            tracing::error!(
                 "request id: '{}' - failed to start db transaction: {:?}",
                 request_id,
                 err
@@ -71,7 +73,7 @@ pub async fn subscribes(
 
     match tx.commit().await {
         Ok(_) => {
-            log::info!(
+            tracing::info!(
                 "request id: '{}' - new subscriber details have been saved",
                 request_id
             );
@@ -79,7 +81,7 @@ pub async fn subscribes(
             StatusCode::OK
         }
         Err(err) => {
-            log::error!(
+            tracing::error!(
                 "request id: '{}' - failed to execute query: {:?}",
                 request_id,
                 err

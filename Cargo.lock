@@ -3485,7 +3485,6 @@ dependencies = [
  "axum-test",
  "chrono",
  "config",
- "log",
  "reqwest",
  "serde",
  "sqlx",
