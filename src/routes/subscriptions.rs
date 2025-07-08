@@ -17,8 +17,16 @@ pub async fn subscribes(
     Form(subscriber): Form<SubscribeForm>,
 ) -> StatusCode {
     let mut tx = match state.db_pool.begin().await {
-        Ok(tx) => tx,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(tx) => {
+            log::info!("successfully starting db transaction");
+
+            tx
+        }
+        Err(err) => {
+            log::error!("failed to start db transaction: {:?}", err);
+
+            return StatusCode::INTERNAL_SERVER_ERROR;
+        }
     };
 
     let result = sqlx::query!(
