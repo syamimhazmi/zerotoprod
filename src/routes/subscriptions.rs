@@ -39,7 +39,15 @@ pub async fn subscribes(
     }
 
     match tx.commit().await {
-        Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            log::info!("new subscriber details have been saved");
+
+            StatusCode::OK
+        }
+        Err(err) => {
+            log::error!("failed to execute query: {:?}", err);
+
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
