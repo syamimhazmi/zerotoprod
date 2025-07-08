@@ -7,8 +7,8 @@ mod common;
 
 #[tokio::test]
 async fn test_health_check_succeed() {
-    let test_app = spawn_app().await;
-    let mut app = test_app.service;
+    let mut test_app = spawn_app().await;
+    let app = &mut test_app.service;
 
     let request = Request::builder()
         .uri("/api/v1/health-check")

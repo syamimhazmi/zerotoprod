@@ -34,7 +34,6 @@ pub async fn subscribes(
     .execute(&mut *tx)
     .await;
 
-    println!("is error: {:?}", &result.is_err());
     if result.is_err() {
         return StatusCode::INTERNAL_SERVER_ERROR;
     }

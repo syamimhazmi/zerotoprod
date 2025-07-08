@@ -6,10 +6,10 @@ use tower::{Service, ServiceExt};
 
 mod common;
 
-#[tokio::test]
+#[sqlx::test]
 async fn subscribe_returns_200_for_valid_form_data() {
-    let test_app = spawn_app().await;
-    let mut app = test_app.service;
+    let mut test_app = spawn_app().await;
+    let app = &mut test_app.service;
 
     let mut connection = PgConnection::connect(&test_app.config.database.connection_string())
         .await
@@ -44,8 +44,8 @@ async fn subscribe_returns_200_for_valid_form_data() {
 
 #[tokio::test]
 async fn subscribe_returns_a_400_when_data_is_missing() {
-    let test_app = spawn_app().await;
-    let mut app = test_app.service;
+    let mut test_app = spawn_app().await;
+    let app = &mut test_app.service;
 
     let test_cases = vec![
         ("name=le%20guin", "missing the email"),
